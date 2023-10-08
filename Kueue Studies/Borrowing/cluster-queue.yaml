@@ -1,0 +1,45 @@
+apiVersion: kueue.x-k8s.io/v1beta1
+kind: ClusterQueue
+metadata:
+  name: "team-a-cq"
+spec:
+  namespaceSelector: # match namespace team-a
+    matchExpressions:
+      - key: team
+        operator: In
+        values:
+          - team-a
+  cohort: "team-ab"
+  resourceGroups:
+    - coveredResources: ["cpu", "memory"]
+      flavors:
+        - name: "standard"
+          resources:
+            - name: "cpu"
+              nominalQuota: 1 # runs 2 jobs
+              borrowingLimit: 0 # blocks this from borrowing resources from another ClusterQueue
+            - name: "memory"
+              nominalQuota: 36Gi
+---
+apiVersion: kueue.x-k8s.io/v1beta1
+kind: ClusterQueue
+metadata:
+  name: "team-b-cq"
+spec:
+  namespaceSelector: # match namespace team-b
+    matchExpressions:
+      - key: team
+        operator: In
+        values:
+          - team-b
+  cohort: "team-ab"
+  resourceGroups:
+    - coveredResources: ["cpu", "memory"]
+      flavors:
+        - name: "standard"
+          resources:
+            - name: "cpu"
+              nominalQuota: 1   # 2 jobs
+              borrowingLimit: 1 # lets me run up to 4 jobs (borrows 1 cpu from another ClusterQueue)
+            - name: "memory"
+              nominalQuota: 72Gi
