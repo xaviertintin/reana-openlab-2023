@@ -1,0 +1,34 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  namespace: default
+  name: read
+  annotations:
+    kueue.x-k8s.io/queue-name: lq-workflows
+spec:
+  # ttlSecondsAfterFinished: 60 # Job will be deleted after 60 seconds
+  parallelism: 1 # This Job will have 3 replicas running at the same time
+  completions: 1 # This Job requires 3 completions
+  suspend: true # Set to true to allow Kueue to control the Job when it starts
+  template:
+    spec:
+      containers:
+        - name: my-sidecar
+          image: bash
+          command: ["bash", "-c"]
+          args:
+            - sleep 30000
+          resources:
+            requests:
+              memory: "150Mi"
+            limits:
+              memory: "150Mi"
+          volumeMounts:
+            - name: data-volume
+              mountPath: /data
+      restartPolicy: Never
+      volumes:
+        - name: data-volume
+          persistentVolumeClaim:
+            claimName: reana-summer-volume
+            readOnly: false

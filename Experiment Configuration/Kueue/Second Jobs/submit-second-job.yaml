@@ -1,0 +1,35 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  namespace: default 
+  # name: submit-second-job-<NUMBER>
+  name: experiment13-secondjob-<NUMBER>
+  annotations:
+    kueue.x-k8s.io/queue-name: lq-jobs
+spec:
+  ttlSecondsAfterFinished: 1
+  parallelism: 1 
+  completions: 1 
+  suspend: true 
+  template:
+    spec:
+      containers:
+      - name: my-sidecar
+        image: alpine
+        command: ["sh", "-c"]
+        args:
+          - current_time=$(date +"%Y-%m-%d %H:%M:%S") && echo "$current_time" > /data/benchmark/<NUMBER>/timestamp2.txt && sleep 30
+        resources:
+          requests:
+            memory: "512Mi"
+          limits:
+            memory: "512Mi"
+        volumeMounts:
+            - name: data-volume
+              mountPath: /data
+      restartPolicy: Never
+      volumes:
+        - name: data-volume
+          persistentVolumeClaim:
+            claimName: reana-summer-volume
+            readOnly: false

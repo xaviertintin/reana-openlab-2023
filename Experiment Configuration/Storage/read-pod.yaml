@@ -1,0 +1,33 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  namespace: default
+  name: read
+  annotations:
+    kueue.x-k8s.io/queue-name: lq-workflows
+spec:
+  parallelism: 1 
+  completions: 1 
+  suspend: true 
+  template:
+    spec:
+      containers:
+        - name: my-sidecar
+          image: bash
+          command: ["bash", "-c"]
+          args:
+            - sleep 30000
+          resources:
+            requests:
+              memory: "500Mi"
+            limits:
+              memory: "500Mi"
+          volumeMounts:
+            - name: data-volume
+              mountPath: /data
+      restartPolicy: Never
+      volumes:
+        - name: data-volume
+          persistentVolumeClaim:
+            claimName: reana-summer-volume
+            readOnly: false

@@ -1,0 +1,49 @@
+apiVersion: kueue.x-k8s.io/v1beta1
+kind: ClusterQueue
+metadata:
+  name: "reana-wf-cq"
+spec:
+  namespaceSelector:
+    matchExpressions:
+      - key: reana-wf
+        operator: In
+        values:
+          - default
+  cohort: "reana-summer-cluster"
+  resourceGroups:
+    - coveredResources: ["cpu", "memory"]
+      flavors:
+        - name: "benchmark"
+          resources:
+            - name: "cpu"
+              nominalQuota: 184000m
+              borrowingLimit: 0m
+            - name: "memory"
+              nominalQuota: 322000Mi
+              borrowingLimit: 0Mi
+  queueingStrategy: StrictFIFO
+---
+apiVersion: kueue.x-k8s.io/v1beta1
+kind: ClusterQueue
+metadata:
+  name: "reana-job-cq"
+spec:
+  namespaceSelector:
+    matchExpressions:
+      - key: reana-job
+        operator: In
+        values:
+          - default
+  cohort: "reana-summer-cluster"
+  resourceGroups:
+    - coveredResources: ["cpu", "memory"]
+      flavors:
+        - name: "benchmark"
+          resources:
+            - name: "cpu"
+              nominalQuota: 184000m
+              borrowingLimit: 0m
+            - name: "memory"
+              nominalQuota: 322000Mi
+              borrowingLimit: 0Mi
+  queueingStrategy: StrictFIFO

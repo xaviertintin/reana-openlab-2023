@@ -1,0 +1,34 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  namespace: default
+  name: experiment12-firstjob-2-a
+  annotations:
+    kueue.x-k8s.io/queue-name: lq-workflows
+spec:
+  ttlSecondsAfterFinished: 0
+  parallelism: 1 
+  completions: 1 
+  suspend: true
+  template:
+    spec:
+      containers:
+        - name: my-sidecar
+          image: alpine/k8s:1.24.16
+          command: ["bash", "-c"]
+          args:
+            - cd .. && ./data/benchmark/2/submit-second-job-2.sh
+          resources:
+            requests:
+              memory: "150Mi"
+            limits:
+              memory: "150Mi"
+          volumeMounts:
+            - name: data-volume
+              mountPath: /data
+      restartPolicy: Never
+      volumes:
+        - name: data-volume
+          persistentVolumeClaim:
+            claimName: reana-summer-volume
+            readOnly: false

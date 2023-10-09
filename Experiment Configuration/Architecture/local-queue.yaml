@@ -1,0 +1,15 @@
+apiVersion: kueue.x-k8s.io/v1beta1
+kind: LocalQueue
+metadata:
+  namespace: default # LocalQueue under the same namespace
+  name: lq-workflows
+spec:
+  clusterQueue: reana-wf-cq # Point to the ClusterQueue
+---
+apiVersion: kueue.x-k8s.io/v1beta1
+kind: LocalQueue
+metadata:
+  namespace: default # LocalQueue under the same namespace
+  name: lq-jobs
+spec:
+  clusterQueue: reana-job-cq # Point to the ClusterQueue
